@@ -230,7 +230,7 @@ int main (int argc, char** argv)
 	    viewer = customColourVis(basic_cloud_ptr);
 	}
 
-	//viewer = simpleVis(basic_cloud_ptr);
+	viewer->addText(xyzname, 0, 20, "fname");
 
 	std::cout << "Press h key to show VTK help.\n\n";
 
@@ -255,6 +255,7 @@ int main (int argc, char** argv)
 		loadCloud(xyzs[num], basic_cloud_ptr);
 
 		viewer->updatePointCloud(basic_cloud_ptr, "sample cloud");
+		viewer->updateText(xyzs[num], 0, 20, "fname");
 		
 		if (savess)
 		{
