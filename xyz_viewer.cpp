@@ -25,7 +25,8 @@ namespace fs = boost::filesystem;
 void
 printUsage (const char* progName)
 {
-  std::cout << "\n\nUsage: "<<progName<<" [options]\n\n"
+  std::cout << "\n\nUsage: "<<progName<<" -D <target_directory> [options]\n\n"
+	        << "-D           set target directory\n"
 			<< "Options:\n"
 			<< "-------------------------------------------\n"
 			<< "-h           this help\n"
@@ -200,15 +201,34 @@ int main (int argc, char** argv)
 		std::cout << "Save screen shot\n";
 	}
 
-	std::string xyzdir = "D:/work/pcl_viewer/dosei_sweep";
+	//std::string xyzdir = "D:/work/pcl_viewer/dosei_sweep";
+	
+	std::string xyzdir = ".";
+	if (pcl::console::parse(argc, argv, "-D", xyzdir) >= 0)
+	{
+		cout << "Using Directory:" << xyzdir << ".\n";
+	}
+	else{
+		PCL_ERROR("You must set target directory with -D.\n");
+		return 0;
+	}
+
 	const fs::path path(xyzdir);
 	std::vector<std::string> xyzs;
 	BOOST_FOREACH(const fs::path& p, std::make_pair(fs::directory_iterator(path), fs::directory_iterator())) {
 		if (!fs::is_directory(p)){
-			//xyzs.push_back(xyzdir + "/" + p.string());
-			xyzs.push_back(p.string());
+			if (p.extension().string() == ".xyz"){
+				xyzs.push_back(p.string());
+			}
 		}
 	}
+
+	if (xyzs.size() == 0){
+		PCL_ERROR("No .xyz file exists under %s !\n", xyzdir.c_str());
+		return 0;
+	}
+
+	std::cout << xyzs.size() << " files found.\n";
 
 	xyzname = xyzs[0];
 
@@ -250,7 +270,6 @@ int main (int argc, char** argv)
 			num = 0;
 		}
 
-		std::cout << xyzs[num] << "\n";
 		basic_cloud_ptr->clear();
 		loadCloud(xyzs[num], basic_cloud_ptr);
 
