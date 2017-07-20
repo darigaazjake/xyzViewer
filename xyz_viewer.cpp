@@ -165,8 +165,16 @@ int main (int argc, char** argv)
 		return 0;
 	}
 
-	bool simple(false), rgb(false), custom_c(false);
+	bool simple(false), custom_c(false);
 	std::string xyzname("D:/work/pcl_viewer/cow/cow.xyz");
+	if (pcl::console::find_argument(argc, argv, "-d") >= 0)
+	{
+		xyzname = "D:/work/pcl_viewer/dosei/dosei.xyz";
+	}
+	else if (pcl::console::find_argument(argc, argv, "-f") >= 0)
+	{
+		xyzname = "D:/work/pcl_viewer/ff/n901.xyz";
+	}
 
 	if (pcl::console::find_argument(argc, argv, "-s") >= 0)
 	{
@@ -178,16 +186,7 @@ int main (int argc, char** argv)
 		custom_c = true;
 		std::cout << "Custom colour visualisation example\n";
 	}
-	else if (pcl::console::find_argument(argc, argv, "-r") >= 0)
-	{
-		rgb = true;
-		std::cout << "RGB colour visualisation example\n";
-	}
-	else if (pcl::console::find_argument(argc, argv, "-d") >= 0)
-	{
-		xyzname = "D:/work/pcl_viewer/dosei/dosei.xyz";
-	}
-	else
+	else 
 	{
 		printUsage(argv[0]);
 		return 0;
@@ -195,6 +194,7 @@ int main (int argc, char** argv)
 
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
+
 	if (!loadCloud(xyzname, basic_cloud_ptr)){
 		std::cout << "Reading xyz failed (" << xyzname << ") .....\n\n";
 		return (-1);
@@ -202,22 +202,18 @@ int main (int argc, char** argv)
 
 	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
 
-	/*
 	if (simple)
 	{
 	viewer = simpleVis(basic_cloud_ptr);
-	}
-	else if (rgb)
-	{
-	viewer = rgbVis(point_cloud_ptr);
 	}
 	else if (custom_c)
 	{
 	viewer = customColourVis(basic_cloud_ptr);
 	}
-	*/
 
-	viewer = simpleVis(basic_cloud_ptr);
+	//viewer = simpleVis(basic_cloud_ptr);
+
+	std::cout << "Press h key to show VTK help.\n\n";
 
 	//--------------------
 	// -----Main loop-----
