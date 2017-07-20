@@ -171,7 +171,7 @@ int main (int argc, char** argv)
 		return 0;
 	}
 
-	bool simple(false), custom_c(false);
+	bool simple(true), custom_c(false), savess(false);
 	std::string xyzname("D:/work/pcl_viewer/cow/cow.xyz");
 	if (pcl::console::find_argument(argc, argv, "-d") >= 0)
 	{
@@ -190,7 +190,14 @@ int main (int argc, char** argv)
 	else if (pcl::console::find_argument(argc, argv, "-c") >= 0)
 	{
 		custom_c = true;
+		simple = false;
 		std::cout << "Custom colour visualisation example\n";
+	}
+
+	if (pcl::console::find_argument(argc, argv, "-S") >= 0)
+	{
+		savess = true;
+		std::cout << "Save screen shot\n";
 	}
 
 	std::string xyzdir = "D:/work/pcl_viewer/dosei_sweep";
@@ -216,11 +223,11 @@ int main (int argc, char** argv)
 
 	if (simple)
 	{
-	viewer = simpleVis(basic_cloud_ptr);
+	    viewer = simpleVis(basic_cloud_ptr);
 	}
 	else if (custom_c)
 	{
-	viewer = customColourVis(basic_cloud_ptr);
+	    viewer = customColourVis(basic_cloud_ptr);
 	}
 
 	//viewer = simpleVis(basic_cloud_ptr);
@@ -246,7 +253,18 @@ int main (int argc, char** argv)
 		std::cout << xyzs[num] << "\n";
 		basic_cloud_ptr->clear();
 		loadCloud(xyzs[num], basic_cloud_ptr);
+
 		viewer->updatePointCloud(basic_cloud_ptr, "sample cloud");
+		
+		if (savess)
+		{
+			std::string ssname = "ss_" + std::to_string(num) + ".png";
+			std::string camname = "ss_" + std::to_string(num) + ".cam";
+			viewer->saveScreenshot(ssname);
+			viewer->saveCameraParameters(camname);
+		}
+		
+		
 		num++;
 
 	}
