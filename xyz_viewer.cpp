@@ -173,15 +173,6 @@ int main (int argc, char** argv)
 	}
 
 	bool simple(true), custom_c(false), savess(false);
-	std::string xyzname("D:/work/pcl_viewer/cow/cow.xyz");
-	if (pcl::console::find_argument(argc, argv, "-d") >= 0)
-	{
-		xyzname = "D:/work/pcl_viewer/dosei/dosei.xyz";
-	}
-	else if (pcl::console::find_argument(argc, argv, "-f") >= 0)
-	{
-		xyzname = "D:/work/pcl_viewer/ff/n901.xyz";
-	}
 
 	if (pcl::console::find_argument(argc, argv, "-s") >= 0)
 	{
@@ -200,8 +191,6 @@ int main (int argc, char** argv)
 		savess = true;
 		std::cout << "Save screen shot\n";
 	}
-
-	//std::string xyzdir = "D:/work/pcl_viewer/dosei_sweep";
 	
 	std::string xyzdir = ".";
 	if (pcl::console::parse(argc, argv, "-D", xyzdir) >= 0)
@@ -230,12 +219,10 @@ int main (int argc, char** argv)
 
 	std::cout << xyzs.size() << " files found.\n";
 
-	xyzname = xyzs[0];
-
 	pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
 
-	if (!loadCloud(xyzname, basic_cloud_ptr)){
-		std::cout << "Reading xyz failed (" << xyzname << ") .....\n\n";
+	if (!loadCloud(xyzs[0], basic_cloud_ptr)){
+		std::cout << "Reading xyz failed (" << xyzs[0] << ") .....\n\n";
 		return (-1);
 	}
 
@@ -250,7 +237,7 @@ int main (int argc, char** argv)
 	    viewer = customColourVis(basic_cloud_ptr);
 	}
 
-	viewer->addText(xyzname, 0, 20, "fname");
+	viewer->addText(xyzs[0], 0, 20, "fname");
 
 	std::cout << "Press h key to show VTK help.\n\n";
 
