@@ -13,6 +13,12 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/parse.h>
 
+
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+namespace fs = boost::filesystem;
+
+
 // --------------
 // -----Help-----
 // --------------
@@ -186,12 +192,18 @@ int main (int argc, char** argv)
 		custom_c = true;
 		std::cout << "Custom colour visualisation example\n";
 	}
-	else 
-	{
-		printUsage(argv[0]);
-		return 0;
+
+	std::string xyzdir = "D:/work/pcl_viewer/dosei_sweep";
+	const fs::path path(xyzdir);
+	std::vector<std::string> xyzs;
+	BOOST_FOREACH(const fs::path& p, std::make_pair(fs::directory_iterator(path), fs::directory_iterator())) {
+		if (!fs::is_directory(p)){
+			//xyzs.push_back(xyzdir + "/" + p.string());
+			xyzs.push_back(p.string());
+		}
 	}
 
+	xyzname = xyzs[0];
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr basic_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
 
@@ -215,12 +227,27 @@ int main (int argc, char** argv)
 
 	std::cout << "Press h key to show VTK help.\n\n";
 
+	unsigned int num = 1;
 	//--------------------
 	// -----Main loop-----
 	//--------------------
 	while (!viewer->wasStopped())
 	{
+		/* •\Ž¦‚ÌXV */
 		viewer->spinOnce(100);
+
+		/* wait */
 		boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+
+		if (num >= xyzs.size()){
+			num = 0;
+		}
+
+		std::cout << xyzs[num] << "\n";
+		basic_cloud_ptr->clear();
+		loadCloud(xyzs[num], basic_cloud_ptr);
+		viewer->updatePointCloud(basic_cloud_ptr, "sample cloud");
+		num++;
+
 	}
 }
