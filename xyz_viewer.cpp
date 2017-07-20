@@ -202,6 +202,11 @@ int main (int argc, char** argv)
 		return 0;
 	}
 
+	if (!fs::is_directory(xyzdir)){
+		PCL_ERROR("invalid directory %s\n", xyzdir.c_str());
+		return 0;
+	}
+
 	const fs::path path(xyzdir);
 	std::vector<std::string> xyzs;
 	BOOST_FOREACH(const fs::path& p, std::make_pair(fs::directory_iterator(path), fs::directory_iterator())) {
@@ -213,7 +218,7 @@ int main (int argc, char** argv)
 	}
 
 	if (xyzs.size() == 0){
-		PCL_ERROR("No .xyz file exists under %s !\n", xyzdir.c_str());
+		PCL_ERROR("No .xyz file exists under %s\n", xyzdir.c_str());
 		return 0;
 	}
 
