@@ -34,6 +34,7 @@ printUsage (const char* progName)
 			<< "-r           RGB colour visualisation example\n"
 			<< "-c           Custom colour visualisation example\n"
 			<< "-d           DOSEI-san\n"
+			<< "-x, -y, -z   eye point\n"
 			<< "\n\n";
 }
 
@@ -66,6 +67,7 @@ bool loadCloud(const std::string &filename, pcl::PointCloud<pcl::PointXYZ>::Ptr 
 		boost::split(st, line, boost::is_any_of("\t\r ,"), boost::token_compress_on);
 
 		/* 要素数がちょうど3しか受け付けない */
+		/* TODO:色付き点群とかにも将来対応したい */
 		if (st.size() != 3){
 			//std::cout << "    can't find 3 elements. skip this line. \n    ("<< line << "\n";
 			continue;
@@ -222,6 +224,48 @@ int main (int argc, char** argv)
 		savess = true;
 		std::cout << "Save screen shot\n";
 	}
+
+	float eye_x = 0.0;
+	if (pcl::console::parse(argc, argv, "-x", eye_x) >= 0)
+	{
+		cout << "Eye x:" << eye_x << ".\n";
+	}
+	float eye_y = 0.0;
+	if (pcl::console::parse(argc, argv, "-y", eye_y) >= 0)
+	{
+		cout << "Eye y:" << eye_y << ".\n";
+	}
+	float eye_z = 0.0;
+	if (pcl::console::parse(argc, argv, "-z", eye_z) >= 0)
+	{
+		cout << "Eye z:" << eye_z << ".\n";
+	}
+	float up_x = 1.0;
+	float up_y = 0.0;
+	float up_z = 0.0;
+	/*
+	if (pcl::console::find_argument(argc, argv, "-X") >= 0)
+	{
+		cout << "up is X axis.\n";
+		up_x = 1.0;
+		up_y = 0.0;
+		up_z = 0.0;
+	}
+	else if (pcl::console::find_argument(argc, argv, "-Y") >= 0)
+	{
+		cout << "up is Y axis.\n";
+		up_x = 0.0;
+		up_y = 1.0;
+		up_z = 0.0;
+	}
+	else if (pcl::console::find_argument(argc, argv, "-Z") >= 0)
+	{
+		cout << "up is Z axis.\n";
+		up_x = 0.0;
+		up_y = 0.0;
+		up_z = 1.0;
+	}
+	*/
 	
 	std::string xyzdir = ".";
 	if (pcl::console::parse(argc, argv, "-D", xyzdir) >= 0)
@@ -231,6 +275,12 @@ int main (int argc, char** argv)
 	else{
 		PCL_ERROR("You must set target directory with -D.\n");
 		return 0;
+	}
+
+	std::string camfile = "";
+	if (pcl::console::parse(argc, argv, "-C", camfile) >= 0)
+	{
+		cout << "Using Camera Parameter:" << camfile << ".\n";
 	}
 
 	if (!fs::is_directory(xyzdir)){
@@ -273,8 +323,20 @@ int main (int argc, char** argv)
 	    viewer = customColourVis(basic_cloud_ptr);
 	}
 
-	viewer->addText(xyzs[0], 0, 20, "fname");
+	viewer->setShowFPS(false);
+	viewer->addText(xyzs[0], 0, 0, "fname");
 	viewer->registerKeyboardCallback(keyboardEventOccurred, (void*)viewer.get());
+	viewer->setCameraPosition(eye_x, eye_y, eye_z, up_x, up_y, up_z);
+
+	if (camfile!=""){
+		if (!fs::exists(camfile)){
+			PCL_ERROR("invalid camera file %s\n", camfile.c_str());
+			return 0;
+		}
+		else{
+			viewer->loadCameraParameters(camfile);
+		}
+	}
 
 	std::cout << "Press h key to show VTK help.\n\n";
 	std::cout << "Press y key to start loop\n";
@@ -315,9 +377,9 @@ int main (int argc, char** argv)
 			if (savess)
 			{
 				std::string ssname = "ss_" + std::to_string(num) + ".png";
-				std::string camname = "ss_" + std::to_string(num) + ".cam";
+				//std::string camname = "ss_" + std::to_string(num) + ".cam";
 				viewer->saveScreenshot(ssname);
-				viewer->saveCameraParameters(camname);
+				//viewer->saveCameraParameters(camname);
 			}
 
 			num++;
