@@ -160,6 +160,28 @@ boost::shared_ptr<pcl::visualization::PCLVisualizer> customColourVis (pcl::Point
 	return (viewer);
 }
 
+bool waitflag = true;
+void keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event,
+	void* viewer_void)
+{
+	pcl::visualization::PCLVisualizer *viewer = static_cast<pcl::visualization::PCLVisualizer *> (viewer_void);
+	if (event.getKeySym() == "y" && event.keyDown())
+	{
+		std::cout << "x was pressed." << std::endl;
+		
+		if (waitflag){
+			waitflag = false;
+			std::cout << "wait: true->[false]" << std::endl;
+		}
+		else{
+			waitflag = true;
+			std::cout << "wait: false->[true]" << std::endl;
+		}
+
+		
+	}
+}
+
 // --------------
 // -----Main-----
 // --------------
@@ -243,8 +265,18 @@ int main (int argc, char** argv)
 	}
 
 	viewer->addText(xyzs[0], 0, 20, "fname");
+	viewer->registerKeyboardCallback(keyboardEventOccurred, (void*)viewer.get());
 
 	std::cout << "Press h key to show VTK help.\n\n";
+	std::cout << "Press x key to start loop\n";
+
+	
+	while (waitflag){
+		viewer->spinOnce(100);
+		boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+	}
+	
+	
 
 	unsigned int num = 1;
 	//--------------------
@@ -258,26 +290,28 @@ int main (int argc, char** argv)
 		/* wait */
 		boost::this_thread::sleep(boost::posix_time::microseconds(100000));
 
-		if (num >= xyzs.size()){
-			num = 0;
-		}
+		if (waitflag == false){
+			if (num >= xyzs.size()){
+				num = 0;
+			}
 
-		basic_cloud_ptr->clear();
-		loadCloud(xyzs[num], basic_cloud_ptr);
+			basic_cloud_ptr->clear();
+			loadCloud(xyzs[num], basic_cloud_ptr);
 
-		viewer->updatePointCloud(basic_cloud_ptr, "sample cloud");
-		viewer->updateText(xyzs[num], 0, 20, "fname");
-		
-		if (savess)
-		{
-			std::string ssname = "ss_" + std::to_string(num) + ".png";
-			std::string camname = "ss_" + std::to_string(num) + ".cam";
-			viewer->saveScreenshot(ssname);
-			viewer->saveCameraParameters(camname);
+			viewer->updatePointCloud(basic_cloud_ptr, "sample cloud");
+			viewer->updateText(xyzs[num], 0, 20, "fname");
+
+			if (savess)
+			{
+				std::string ssname = "ss_" + std::to_string(num) + ".png";
+				std::string camname = "ss_" + std::to_string(num) + ".cam";
+				viewer->saveScreenshot(ssname);
+				viewer->saveCameraParameters(camname);
+			}
+
+
+			num++;
 		}
-		
-		
-		num++;
 
 	}
 }
