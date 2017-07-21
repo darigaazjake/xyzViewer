@@ -89,7 +89,7 @@ bool loadCloud(const std::string &filename, pcl::PointCloud<pcl::PointXYZ>::Ptr 
 boost::shared_ptr<pcl::visualization::PCLVisualizer> simpleVis (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
 {
 	/* 1: viewerオブジェクトを生成する */
-	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
+	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("XYZ Viewer"));
 	
 	/* 2: 背景色の設定
 	 *     デフォルトは(0, 0, 0)なので、実はコールしなくても結果は同じ
@@ -160,25 +160,34 @@ boost::shared_ptr<pcl::visualization::PCLVisualizer> customColourVis (pcl::Point
 	return (viewer);
 }
 
+/*
+ * キーボードイベントを自前で定義する
+ * registerKeyboardCallbackをコールしてviewerに設定すること
+ * viewerにデフォルトで組み込まれているキーと被ると、動作も被るので注意すること
+ */
 bool waitflag = true;
+unsigned int num = 1;
 void keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event,
 	void* viewer_void)
 {
 	pcl::visualization::PCLVisualizer *viewer = static_cast<pcl::visualization::PCLVisualizer *> (viewer_void);
 	if (event.getKeySym() == "y" && event.keyDown())
 	{
-		std::cout << "x was pressed." << std::endl;
+		std::cout << "y was pressed.";
 		
 		if (waitflag){
 			waitflag = false;
-			std::cout << "wait: true->[false]" << std::endl;
+			std::cout << "   wait: true->[false]" << std::endl;
 		}
 		else{
 			waitflag = true;
-			std::cout << "wait: false->[true]" << std::endl;
+			std::cout << "   wait: false->[true]" << std::endl;
 		}
-
-		
+	}
+	if (event.getKeySym() == "m" && event.keyDown())
+	{
+		std::cout << "jump to 1st frame.";
+		num = 0;
 	}
 }
 
@@ -268,17 +277,18 @@ int main (int argc, char** argv)
 	viewer->registerKeyboardCallback(keyboardEventOccurred, (void*)viewer.get());
 
 	std::cout << "Press h key to show VTK help.\n\n";
-	std::cout << "Press x key to start loop\n";
+	std::cout << "Press y key to start loop\n";
 
-	
+	/*
 	while (waitflag){
 		viewer->spinOnce(100);
 		boost::this_thread::sleep(boost::posix_time::microseconds(100000));
 	}
+	*/
 	
 	
 
-	unsigned int num = 1;
+	
 	//--------------------
 	// -----Main loop-----
 	//--------------------
@@ -290,6 +300,7 @@ int main (int argc, char** argv)
 		/* wait */
 		boost::this_thread::sleep(boost::posix_time::microseconds(100000));
 
+		/* waitflagがtrueのときは更新しない yキーで切り替え */
 		if (waitflag == false){
 			if (num >= xyzs.size()){
 				num = 0;
@@ -308,7 +319,6 @@ int main (int argc, char** argv)
 				viewer->saveScreenshot(ssname);
 				viewer->saveCameraParameters(camname);
 			}
-
 
 			num++;
 		}
