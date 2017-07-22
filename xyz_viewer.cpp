@@ -5,6 +5,7 @@
 
 
 #include <iostream>
+#include <iomanip>
 
 #include <boost/thread/thread.hpp>
 #include <pcl/common/common_headers.h>
@@ -376,7 +377,9 @@ int main (int argc, char** argv)
 
 			if (savess)
 			{
-				std::string ssname = "ss_" + std::to_string(num) + ".png";
+				char fnum[10];
+				sprintf(fnum, "%05d", num);
+				std::string ssname = "ss_" + std::string(fnum) + ".png";
 				//std::string camname = "ss_" + std::to_string(num) + ".cam";
 				viewer->saveScreenshot(ssname);
 				//viewer->saveCameraParameters(camname);
